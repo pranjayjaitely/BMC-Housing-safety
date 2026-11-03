@@ -1011,6 +1011,7 @@ Object.assign(translations.en,{
   ward_label:"Ward", record_date:"Record date", directions:"Directions", street_view:"Street View",
   c1_source:"BMC C1 list · 30 Apr 2026", other_source:"BMC record", no_record_source:"No public C1 entry",
   status_file_disclaimer:"BMC Building Safety prototype. Published BMC records are shown where available. No C1 entry is not a safety certificate. Sample records are illustrative only.",
+  sample_photo_caption:"Representative sample image — this is not a photograph of the selected building.",
   faq_search_title:"How do I check my building's status?",
   faq_search_body:"Search by building name, address, PIN code or society name from the home screen.",
   faq_grades_title:"What do C1, C2A, C2B and C3 mean?",
@@ -1032,6 +1033,7 @@ Object.assign(translations.hi,{
   ward_label:"वार्ड", record_date:"रिकॉर्ड की तारीख", directions:"दिशा-निर्देश", street_view:"स्ट्रीट व्यू",
   c1_source:"बीएमसी C1 सूची · 30 अप्रैल 2026", other_source:"बीएमसी रिकॉर्ड", no_record_source:"कोई सार्वजनिक C1 प्रविष्टि नहीं",
   status_file_disclaimer:"बीएमसी भवन सुरक्षा प्रोटोटाइप। जहाँ उपलब्ध है, प्रकाशित बीएमसी रिकॉर्ड दिखाए गए हैं। C1 रिकॉर्ड न मिलना सुरक्षा प्रमाणपत्र नहीं है। नमूना रिकॉर्ड केवल उदाहरण के लिए हैं।",
+  sample_photo_caption:"प्रतिनिधि नमूना तस्वीर — यह चुनी गई इमारत की वास्तविक तस्वीर नहीं है।",
   faq_search_title:"मैं अपनी इमारत की स्थिति कैसे जाँचूँ?",
   faq_search_body:"मुख्य स्क्रीन पर इमारत का नाम, पता, पिन कोड या सोसायटी का नाम खोजें।",
   faq_grades_title:"C1, C2A, C2B और C3 का क्या अर्थ है?",
@@ -1053,6 +1055,7 @@ Object.assign(translations.mr,{
   ward_label:"प्रभाग", record_date:"नोंदीची तारीख", directions:"दिशा", street_view:"स्ट्रीट व्ह्यू",
   c1_source:"बीएमसी C1 यादी · 30 एप्रिल 2026", other_source:"बीएमसी नोंद", no_record_source:"सार्वजनिक C1 नोंद नाही",
   status_file_disclaimer:"बीएमसी बिल्डिंग सेफ्टी प्रोटोटाइप. उपलब्ध ठिकाणी प्रकाशित बीएमसी नोंदी दाखवल्या आहेत. C1 नोंद नसणे हे सुरक्षिततेचे प्रमाणपत्र नाही. नमुना नोंदी केवळ उदाहरणासाठी आहेत.",
+  sample_photo_caption:"प्रतिनिधी नमुना फोटो — हा निवडलेल्या इमारतीचा खरा फोटो नाही.",
   faq_search_title:"मी माझ्या इमारतीची स्थिती कशी तपासू?",
   faq_search_body:"मुख्य स्क्रीनवर इमारतीचे नाव, पत्ता, पिन कोड किंवा सोसायटीचे नाव शोधा.",
   faq_grades_title:"C1, C2A, C2B आणि C3 यांचा अर्थ काय?",
@@ -1324,9 +1327,20 @@ renderResult=function(id){
 const _originalPhotoLoader=loadPhoto;
 loadPhoto=function(b){
   const box=document.getElementById("photoBox");if(!box)return;
-  if(b.photo){box.innerHTML='<img alt="Building photograph" src="'+String(b.photo).replace(/"/g,"%22")+'" style="width:100%;height:100%;object-fit:cover">';return;}
-  box.innerHTML='<div class="photo-placeholder"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-7h6v7M8 10h.01M16 10h.01"/></svg><span>'+translations[currentLang].photo_unavailable+'</span></div>';
-  if(b.prec==="building"&&CONFIG.MAPILLARY_TOKEN)_originalPhotoLoader(b);
+  const hasPropertyPhoto=Boolean(b.photo);
+  const image=document.createElement("img");
+  image.className="sample-building-image";
+  image.src=hasPropertyPhoto?String(b.photo):"assets/sample-building.webp";
+  image.alt=hasPropertyPhoto
+    ? (translations[currentLang].building_photo||"Building photograph")
+    : (translations[currentLang].sample_photo_caption||"Representative sample building photograph");
+  image.loading="lazy";
+  const caption=document.createElement("div");
+  caption.className="sample-photo-caption";
+  caption.textContent=hasPropertyPhoto
+    ? (translations[currentLang].building_photo||"Building photograph")
+    : translations[currentLang].sample_photo_caption;
+  box.replaceChildren(image,caption);
 };
 
 let buildingMapInstance=null,buildingPinLayer=null;
@@ -1510,5 +1524,12 @@ window.toggleNightMode=toggleNightMode;
 updateNightModeButtons();
 </script>
 
+<style>
+#photoBox{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;overflow:hidden}
+#photoBox .sample-building-image{display:block;width:100%;height:205px;min-height:155px;object-fit:cover;background:#e7edf3}
+#photoBox .sample-photo-caption{font-size:10px;line-height:1.35;padding:7px 8px;color:var(--text-muted);background:#F8FAFC;border-top:1px solid var(--border)}
+html.night-mode #photoBox .sample-photo-caption{color:var(--text-muted);background:#142130;border-color:var(--border)}
+@media(max-width:520px){#photoBox .sample-building-image{height:155px;min-height:145px}#photoBox .sample-photo-caption{font-size:9px;padding:6px}}
+</style>
 </body>
 </html>
