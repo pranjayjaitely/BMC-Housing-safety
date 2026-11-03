@@ -359,7 +359,7 @@
     </div>
   </nav>
   <div class="page map-wrap">
-    <button class="back-link" onclick="showScreen('home')">
+    <button class="back-link" onclick="goBack()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       <span data-i18n="back">Back</span>
     </button>
@@ -384,7 +384,7 @@
   </nav>
 
   <div class="page result-wrap">
-    <button class="back-link" onclick="showScreen('home')">
+    <button class="back-link" onclick="goBack()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       <span data-i18n="back_to_home">BACK TO HOME</span>
     </button>
@@ -491,7 +491,7 @@
     </div>
   </nav>
   <div class="page info-wrap">
-    <button class="back-link" onclick="showScreen('home')">
+    <button class="back-link" onclick="goBack()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       <span data-i18n="back_to_home">BACK TO HOME</span>
     </button>
@@ -523,7 +523,7 @@
     </div>
   </nav>
   <div class="page info-wrap">
-    <button class="back-link" onclick="showScreen('home')">
+    <button class="back-link" onclick="goBack()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       <span data-i18n="back_to_home">BACK TO HOME</span>
     </button>
@@ -1358,7 +1358,7 @@ function saveBuildingStatus(){
   if(!selectedBuilding)return;
   const blob=new Blob([statusSummary()],{type:"text/plain;charset=utf-8"});
   const url=URL.createObjectURL(blob),a=document.createElement("a");
-  a.href=url;a.download="building-status-"+selectedBuilding.id+".txt";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+  a.href=url;a.download="building-status-"+selectedBuilding.id+".txt";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
   document.getElementById("actionFeedback").textContent=translations[currentLang].saved_feedback;
 }
 async function shareBuildingStatus(){
