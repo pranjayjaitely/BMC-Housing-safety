@@ -66,7 +66,9 @@
   }
 
   /* ---- Language screen ---- */
-  .lang-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#EAF2FA;padding:24px;}
+  .lang-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#EAF2FA;padding:24px;position:relative;}
+  .language-logo{position:absolute;top:24px;left:24px;width:64px;height:64px;object-fit:contain;pointer-events:none;}
+  @media(max-width:600px){.language-logo{top:16px;left:16px;width:48px;height:48px;}}
   .lang-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:48px 40px;max-width:440px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(23,105,170,0.08);}
   .lang-card .brand-mark{width:52px;height:52px;margin:0 auto 16px;}
   .lang-card .brand-name{display:block;font-size:15px;margin-bottom:28px;}
@@ -236,6 +238,7 @@
 <!-- ================= LANGUAGE SCREEN ================= -->
 <section class="screen active" id="screen-language">
   <div class="lang-screen">
+    <img class="language-logo" src="assets/bmc-logo.png" alt="Brihanmumbai Municipal Corporation logo" width="64" height="64" loading="eager">
     <div class="lang-card">
       <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4v2H4V7l8-4z"/><path d="M5 10v9M9 10v9M15 10v9M19 10v9"/><path d="M3 21h18"/></svg>
       <span class="brand-name" data-i18n="app_name">BMC Building Safety</span>
