@@ -279,6 +279,89 @@
     .location-accuracy{font-size:9.5px}
   }
 </style>
+
+<style>
+/* ===== Persistent day/night theme ===== */
+html.night-mode{
+  --civic-blue:#78BDF4;
+  --civic-blue-2:#4099E4;
+  --civic-blue-dark:#2B78B8;
+  --verified:#65C79A;
+  --verified-bg:#173A2C;
+  --verified-border:#2C664A;
+  --attention:#F2BF58;
+  --attention-bg:#473819;
+  --attention-border:#705820;
+  --critical:#FF8989;
+  --critical-bg:#482424;
+  --critical-border:#743B3B;
+  --info-teal:#68D2D2;
+  --text-dark:#E7EEF6;
+  --text-muted:#B3C0CE;
+  --text-faint:#91A1B2;
+  --bg:#101925;
+  --white:#192635;
+  --border:#344557;
+}
+html.night-mode body{background:var(--bg);color:var(--text-dark);}
+html.night-mode .lang-screen{background:#111D2A;}
+html.night-mode .topnav,
+html.night-mode .site-footer,
+html.night-mode .lang-card,
+html.night-mode .accordion-item,
+html.night-mode .side-card,
+html.night-mode .media-panel,
+html.night-mode .search-results,
+html.night-mode .photo-box{background:var(--white);border-color:var(--border);}
+html.night-mode .map-area{background-color:#1C2B3B;border-color:var(--border);background-image:linear-gradient(0deg,rgba(120,189,244,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(120,189,244,.055) 1px,transparent 1px);}
+html.night-mode #mapArea{background:#1C2B3B;border-color:var(--border);}
+html.night-mode .search-input,
+html.night-mode .voice-btn,
+html.night-mode .status-action{background:#142130;color:var(--text-dark);border-color:var(--border);}
+html.night-mode .search-result-item{color:var(--text-dark);}
+html.night-mode .search-result-item:hover{background:#25364A;}
+html.night-mode .search-empty,
+html.night-mode .voice-status,
+html.night-mode .location-accuracy,
+html.night-mode .photo-cap{background:#142130;color:var(--text-muted);border-color:var(--border);}
+html.night-mode .photo-placeholder{color:var(--text-muted);}
+html.night-mode .tag{background:#26384B;color:#D0DCE8;}
+html.night-mode .status-divider,
+html.night-mode .side-hr{background:#3A4C60;}
+html.night-mode .night-toggle{background:#26384B;color:#F0F5FA;border-color:#50647A;}
+html.night-mode .lang-btn{color:#fff;}
+html.night-mode .footer-links a{color:var(--civic-blue);}
+html.night-mode .leaflet-container{background:#142130;}
+html.night-mode .leaflet-tile{filter:brightness(.72) invert(1) contrast(.88) hue-rotate(180deg) saturate(.65);}
+html.night-mode .leaflet-popup-content-wrapper,
+html.night-mode .leaflet-popup-tip{background:#192635;color:#E7EEF6;}
+html.night-mode .leaflet-control-attribution,
+html.night-mode .leaflet-control-zoom a{background:#192635;color:#D6E1EC;border-color:#344557;}
+.night-toggle{display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;border:1px solid #D7E1EA;border-radius:999px;padding:7px 10px;background:#F1F5F9;color:#23384D;font:700 11px/1.2 'IBM Plex Sans','Noto Sans Devanagari',sans-serif;cursor:pointer;transition:background .16s ease,border-color .16s ease,color .16s ease;}
+.night-toggle:hover{background:#E3EDF6;}
+.night-icon{font-size:15px;line-height:1;}
+.lang-screen>.night-toggle{position:absolute;top:18px;right:22px;z-index:30;}
+.topnav .nav-links{align-items:center;gap:14px;}
+.topnav .night-toggle{margin-left:2px;}
+@media(max-width:600px){
+  .topnav .nav-links{gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+  .topnav .night-toggle{font-size:10px;padding:6px 8px;}
+  .lang-screen>.night-toggle{top:12px;right:14px;}
+}
+@media(max-width:390px){
+  .topnav .nav-links{gap:4px;}
+  .topnav .night-toggle{padding:5px 7px;}
+  .topnav .night-toggle .night-label{max-width:54px;overflow:hidden;text-overflow:ellipsis;}
+}
+</style>
+<script>
+try{
+  if(localStorage.getItem("bmc-night-mode")==="on"){
+    document.documentElement.classList.add("night-mode");
+  }
+}catch(e){}
+</script>
+
 </head>
 <body>
 
@@ -286,6 +369,7 @@
 <section class="screen active" id="screen-language">
   <div class="lang-screen">
     <img class="language-logo" src="assets/bmc-logo.png" alt="Brihanmumbai Municipal Corporation logo" width="64" height="64" loading="eager">
+    <button type="button" class="night-toggle" onclick="toggleNightMode()" aria-label="Night mode" aria-pressed="false" title="Night mode"><span class="night-icon" aria-hidden="true">☾</span><span class="night-label">Night mode</span></button>
     <div class="lang-card">
       
       <span class="brand-name" data-i18n="app_name">BMC Building Safety</span>
@@ -311,6 +395,7 @@
         <button class="nav-back" onclick="goBack()" data-i18n="back">Back</button>
         <button onclick="showScreen('help')" data-i18n="help">Help</button>
         <button onclick="showScreen('about')" data-i18n="about">About</button>
+      <button type="button" class="night-toggle" onclick="toggleNightMode()" aria-label="Night mode" aria-pressed="false" title="Night mode"><span class="night-icon" aria-hidden="true">☾</span><span class="night-label">Night mode</span></button>
       </div>
     </div>
   </nav>
@@ -355,6 +440,7 @@
       <div class="nav-links">
         <button onclick="showScreen('help')" data-i18n="help">Help</button>
         <button onclick="showScreen('about')" data-i18n="about">About</button>
+      <button type="button" class="night-toggle" onclick="toggleNightMode()" aria-label="Night mode" aria-pressed="false" title="Night mode"><span class="night-icon" aria-hidden="true">☾</span><span class="night-label">Night mode</span></button>
       </div>
     </div>
   </nav>
@@ -379,6 +465,7 @@
       <div class="nav-links">
         <button onclick="showScreen('help')" data-i18n="help">Help</button>
         <button onclick="showScreen('about')" data-i18n="about">About</button>
+      <button type="button" class="night-toggle" onclick="toggleNightMode()" aria-label="Night mode" aria-pressed="false" title="Night mode"><span class="night-icon" aria-hidden="true">☾</span><span class="night-label">Night mode</span></button>
       </div>
     </div>
   </nav>
@@ -487,7 +574,8 @@
         <img class="brand-mark" src="assets/bmc-logo.png" alt="Brihanmumbai Municipal Corporation logo" width="44" height="44">
         <span class="brand-name" data-i18n="app_name">BMC Building Safety</span>
       </a>
-      <div class="nav-links"><button onclick="showScreen('about')" data-i18n="about">About</button></div>
+      <div class="nav-links"><button onclick="showScreen('about')" data-i18n="about">About</button><button type="button" class="night-toggle" onclick="toggleNightMode()" aria-label="Night mode" aria-pressed="false" title="Night mode"><span class="night-icon" aria-hidden="true">☾</span><span class="night-label">Night mode</span></button>
+      </div>
     </div>
   </nav>
   <div class="page info-wrap">
@@ -519,7 +607,8 @@
         <img class="brand-mark" src="assets/bmc-logo.png" alt="Brihanmumbai Municipal Corporation logo" width="44" height="44">
         <span class="brand-name" data-i18n="app_name">BMC Building Safety</span>
       </a>
-      <div class="nav-links"><button onclick="showScreen('help')" data-i18n="help">Help</button></div>
+      <div class="nav-links"><button onclick="showScreen('help')" data-i18n="help">Help</button><button type="button" class="night-toggle" onclick="toggleNightMode()" aria-label="Night mode" aria-pressed="false" title="Night mode"><span class="night-icon" aria-hidden="true">☾</span><span class="night-label">Night mode</span></button>
+      </div>
     </div>
   </nav>
   <div class="page info-wrap">
@@ -1377,6 +1466,48 @@ async function shareBuildingStatus(){
   }
 }
 window.startVoiceSearch=startVoiceSearch;window.saveBuildingStatus=saveBuildingStatus;window.shareBuildingStatus=shareBuildingStatus;window.initBuildingMap=initBuildingMap;
+</script>
+
+
+<script>
+/* ===== Night mode: shared across all screens and remembered per browser ===== */
+const NIGHT_MODE_LABELS={
+  en:{night:"Night mode",day:"Day mode"},
+  hi:{night:"रात्रि मोड",day:"दिन मोड"},
+  mr:{night:"रात्रीचा मोड",day:"दिवसाचा मोड"}
+};
+let nightModeEnabled=false;
+try{nightModeEnabled=localStorage.getItem("bmc-night-mode")==="on";}catch(e){}
+function updateNightModeButtons(){
+  document.documentElement.classList.toggle("night-mode",nightModeEnabled);
+  const labels=NIGHT_MODE_LABELS[currentLang]||NIGHT_MODE_LABELS.en;
+  document.querySelectorAll(".night-toggle").forEach(button=>{
+    const label=nightModeEnabled?labels.day:labels.night;
+    const icon=nightModeEnabled?"☀":"☾";
+    const iconNode=button.querySelector(".night-icon");
+    const labelNode=button.querySelector(".night-label");
+    if(iconNode)iconNode.textContent=icon;
+    if(labelNode)labelNode.textContent=label;
+    button.setAttribute("aria-label",label);
+    button.setAttribute("title",label);
+    button.setAttribute("aria-pressed",String(nightModeEnabled));
+  });
+  if(buildingMapInstance){
+    setTimeout(()=>buildingMapInstance&&buildingMapInstance.invalidateSize(),60);
+  }
+}
+function toggleNightMode(){
+  nightModeEnabled=!nightModeEnabled;
+  try{localStorage.setItem("bmc-night-mode",nightModeEnabled?"on":"off");}catch(e){}
+  updateNightModeButtons();
+}
+const _applyTranslationsNightMode=applyTranslations;
+applyTranslations=function(){
+  _applyTranslationsNightMode();
+  updateNightModeButtons();
+};
+window.toggleNightMode=toggleNightMode;
+updateNightModeButtons();
 </script>
 
 </body>
