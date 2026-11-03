@@ -1,0 +1,1 @@
+window.GRADED="# Add real C2A/C2B/C3 rows here as you obtain them from BMC wards / RTI. Format:\n# class|ward|name|address|lat|lng   (class = c2a, c2b or c3; lat/lng optional)\n# c2b|HW|Example CHS|Hill Road, Bandra West|19.0545|72.8312\n";

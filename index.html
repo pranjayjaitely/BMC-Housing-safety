@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMC Building Safety — Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --civic-blue:#1769AA;
+    --civic-blue-2:#2C86D8;
+    --civic-blue-dark:#0F4E80;
+    --verified:#2E7D5B;
+    --verified-bg:#E6F4EC;
+    --verified-border:#BFE2CE;
+    --attention:#D99000;
+    --attention-bg:#FBF1DE;
+    --attention-border:#F0D8A5;
+    --critical:#C62828;
+    --critical-bg:#FBEAEA;
+    --critical-border:#F0C2C2;
+    --info-teal:#008A8A;
+    --text-dark:#1A2B3C;
+    --text-muted:#5B6B82;
+    --text-faint:#8996A6;
+    --bg:#F4F7FA;
+    --white:#FFFFFF;
+    --border:#DFE5EC;
+    --radius-lg:14px;
+    --radius-md:10px;
+    --radius-sm:8px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'IBM Plex Sans','Noto Sans Devanagari',sans-serif;
+    background:var(--bg);
+    color:var(--text-dark);
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;}
+  a{cursor:pointer;}
+  .screen{display:none;}
+  .screen.active{display:block;animation:fadeIn .25s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+  .page{max-width:1180px;margin:0 auto;padding:0 24px;}
+  button:focus-visible, a:focus-visible, input:focus-visible{
+    outline:2px solid var(--civic-blue-2);
+    outline-offset:2px;
+  }
+
+  /* ---- Top nav ---- */
+  .topnav{
+    background:var(--white);border-bottom:1px solid var(--border);
+    padding:16px 0;
+  }
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--civic-blue);}
+  .brand-mark{width:30px;height:30px;flex-shrink:0;color:var(--civic-blue);}
+  .brand-name{font-weight:700;font-size:16px;letter-spacing:.03em;color:var(--civic-blue);}
+  .nav-links{display:flex;gap:28px;}
+  .nav-links button{
+    background:none;border:none;color:var(--info-teal);font-weight:600;
+    font-size:13px;letter-spacing:.03em;padding:4px 0;
+  }
+
+  /* ---- Language screen ---- */
+  .lang-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#EAF2FA;padding:24px;}
+  .lang-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:48px 40px;max-width:440px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(23,105,170,0.08);}
+  .lang-card .brand-mark{width:52px;height:52px;margin:0 auto 16px;}
+  .lang-card .brand-name{display:block;font-size:15px;margin-bottom:28px;}
+  .lang-card h1{font-size:20px;font-weight:600;margin:0 0 28px;color:var(--text-dark);}
+  .lang-options{display:flex;gap:10px;}
+  .lang-btn{
+    flex:1;background:var(--civic-blue);color:#fff;border:none;padding:14px 8px;
+    border-radius:var(--radius-sm);font-weight:600;font-size:14px;letter-spacing:.02em;cursor:pointer;
+    transition:background .15s ease;
+  }
+  .lang-btn:hover{background:var(--civic-blue-dark);}
+
+  /* ---- Home screen ---- */
+  .home-hero{max-width:520px;margin:0 auto;text-align:center;padding:88px 24px 48px;}
+  .home-hero h1{font-size:26px;font-weight:700;letter-spacing:.03em;margin:0 0 32px;color:var(--text-dark);}
+  .btn-primary,.btn-secondary{
+    display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+    border:none;border-radius:var(--radius-md);padding:16px 20px;font-size:14px;
+    font-weight:700;letter-spacing:.03em;color:#fff;cursor:pointer;
+  }
+  .btn-primary{background:var(--civic-blue);box-shadow:0 4px 14px rgba(23,105,170,0.25);}
+  .btn-primary:hover{background:var(--civic-blue-dark);}
+  .btn-secondary{background:var(--civic-blue-2);margin-top:16px;}
+  .btn-secondary:hover{background:var(--civic-blue);}
+  .or-divider{display:flex;align-items:center;gap:14px;margin:20px 0;color:var(--text-faint);font-size:12px;font-weight:600;letter-spacing:.05em;}
+  .or-divider::before,.or-divider::after{content:"";flex:1;height:1px;background:var(--border);}
+  .home-footer{display:flex;justify-content:center;gap:48px;padding:0 24px 48px;}
+  .home-footer button{
+    display:flex;align-items:center;gap:8px;background:none;border:none;color:var(--info-teal);
+    font-weight:600;font-size:13px;letter-spacing:.02em;cursor:pointer;
+  }
+
+  /* ---- Search panel ---- */
+  .search-panel{margin-top:22px;position:relative;text-align:left;}
+  .search-panel.hidden{display:none;}
+  .search-input{
+    width:100%;padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);
+    font-size:15px;color:var(--text-dark);background:var(--white);
+  }
+  .search-results{
+    position:absolute;left:0;right:0;top:100%;margin-top:6px;background:var(--white);
+    border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:0 8px 24px rgba(20,40,60,0.12);
+    max-height:260px;overflow-y:auto;z-index:5;
+  }
+  .search-results.hidden{display:none;}
+  .search-result-item{
+    display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:none;
+    padding:12px 16px;font-size:14px;color:var(--text-dark);cursor:pointer;border-bottom:1px solid var(--border);
+  }
+  .search-result-item:last-child{border-bottom:none;}
+  .search-result-item:hover{background:var(--bg);}
+  .result-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .search-result-item .rr-name{font-weight:500;}
+  .search-result-item .rr-status{margin-left:auto;font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.03em;}
+  .search-empty{padding:16px;font-size:13px;color:var(--text-muted);}
+
+  /* ---- Map screen ---- */
+  .map-wrap{padding:32px 0 64px;}
+  .back-link{display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:var(--info-teal);font-weight:600;font-size:13px;letter-spacing:.02em;margin-bottom:20px;cursor:pointer;}
+  .map-area{
+    position:relative;height:460px;border-radius:var(--radius-lg);overflow:hidden;
+    background-color:#E4ECF3;
+    background-image:linear-gradient(0deg, rgba(23,105,170,0.06) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(23,105,170,0.06) 1px, transparent 1px);
+    background-size:56px 56px;border:1px solid var(--border);
+  }
+  .map-hint{font-size:13px;color:var(--text-muted);margin:0 0 16px;}
+  .pin{position:absolute;transform:translate(-50%,-100%);cursor:pointer;text-align:center;background:none;border:none;padding:0;}
+  .pin-dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 3px 8px rgba(0,0,0,0.2);}
+  .pin-label{margin-top:4px;font-size:11px;font-weight:600;color:var(--text-dark);background:rgba(255,255,255,0.9);padding:2px 6px;border-radius:4px;white-space:nowrap;}
+
+  /* ---- Result screen ---- */
+  .result-wrap{padding:32px 0 64px;}
+  .result-grid{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;}
+  @media (max-width:880px){.result-grid{grid-template-columns:1fr;}}
+  .status-row{display:flex;gap:24px;margin-bottom:16px;}
+  @media (max-width:640px){.status-row{flex-direction:column;}}
+  .status-card{flex:1;border-radius:var(--radius-lg);padding:26px;border:1px solid var(--border);}
+  .status-card.verified{background:var(--verified-bg);border-color:var(--verified-border);}
+  .status-card.attention{background:var(--attention-bg);border-color:var(--attention-border);}
+  .status-card.critical{background:var(--critical-bg);border-color:var(--critical-border);}
+  .status-card h2{margin:0 0 14px;font-size:17px;font-weight:600;}
+  .status-badge{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+  .status-badge .badge-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;}
+  .status-badge .badge-label{font-size:19px;font-weight:700;letter-spacing:.02em;}
+  .verified .badge-icon{background:var(--verified);}
+  .verified .badge-label{color:var(--verified);}
+  .attention .badge-icon{background:var(--attention);}
+  .attention .badge-label{color:var(--attention);}
+  .critical .badge-icon{background:var(--critical);}
+  .critical .badge-label{color:var(--critical);}
+  .status-divider{height:1px;background:rgba(0,0,0,0.08);margin:14px 0;}
+  .meta-row{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text-dark);margin-bottom:10px;}
+  .meta-row:last-child{margin-bottom:0;}
+  .meta-row .meta-icon{flex-shrink:0;margin-top:1px;opacity:.8;}
+  .meta-row .meta-label{color:var(--text-muted);}
+  .photo-box{width:260px;flex-shrink:0;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border);background:var(--white);}
+  @media (max-width:640px){.photo-box{width:100%;height:180px;}}
+  .photo-box svg{display:block;width:100%;height:100%;}
+
+  .accordion-item{border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:10px;background:var(--white);overflow:hidden;}
+  .accordion-header{
+    display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;
+    padding:14px 18px;font-size:14px;font-weight:600;color:var(--text-dark);cursor:pointer;text-align:left;
+  }
+  .accordion-header .chev{margin-left:auto;transition:transform .2s ease;color:var(--text-muted);}
+  .accordion-item.open .chev{transform:rotate(180deg);}
+  .accordion-body{max-height:0;overflow:hidden;transition:max-height .25s ease;}
+  .accordion-body-inner{padding:0 18px 16px 46px;font-size:13.5px;line-height:1.6;color:var(--text-muted);}
+
+  .side-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:20px;}
+  .side-card h3{margin:0 0 14px;font-size:12.5px;font-weight:700;letter-spacing:.04em;color:var(--civic-blue);}
+  .side-row{display:flex;gap:10px;font-size:13px;color:var(--text-dark);margin-bottom:14px;line-height:1.5;}
+  .side-row:last-child{margin-bottom:0;}
+  .side-row .side-icon{flex-shrink:0;color:var(--civic-blue);margin-top:1px;}
+  .side-hr{height:1px;background:var(--border);margin:14px 0;}
+  .help-card h3{color:var(--info-teal);}
+  .help-card .contact-name{font-weight:600;color:var(--info-teal);font-size:13.5px;margin:0 0 4px;}
+  .help-card .contact-phone{font-weight:700;font-size:16px;color:var(--text-dark);text-decoration:none;display:block;margin-bottom:2px;}
+  .help-card .contact-hours{font-size:12px;color:var(--text-muted);}
+
+  /* ---- Info screens ---- */
+  .info-wrap{padding:32px 0 64px;max-width:720px;}
+  .info-wrap h1{font-size:22px;margin:0 0 20px;}
+  .faq-item{margin-bottom:20px;}
+  .faq-item h4{margin:0 0 6px;font-size:14.5px;font-weight:600;}
+  .faq-item p{margin:0;font-size:13.5px;line-height:1.6;color:var(--text-muted);}
+  .lang-note{font-size:12px;color:var(--text-faint);font-style:italic;margin-top:4px;}
+
+  /* ---- Footer ---- */
+  .site-footer{border-top:1px solid var(--border);background:var(--white);padding:20px 0;}
+  .site-footer .page{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+  .footer-note{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--text-muted);max-width:520px;}
+  .footer-note svg{flex-shrink:0;color:var(--civic-blue);}
+  .footer-links{display:flex;gap:18px;}
+  .footer-links a{font-size:12.5px;color:var(--civic-blue);font-weight:600;text-decoration:none;}
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+ #mapArea{height:560px;min-height:420px;position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--border);background:#e8eef4}
+ .binfo{margin:6px 0 14px;font-size:14px;color:var(--text-muted);line-height:1.5}
+ .binfo a{color:var(--info-teal);font-weight:600;margin-right:14px;text-decoration:none}
+ .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:#eef2f6;color:#5B6B82;margin-right:6px}
+ .photo-box img{width:100%;height:100%;object-fit:cover;display:block}
+ .photo-cap{font-size:10px;color:var(--text-faint);padding:4px 8px;background:#fff}
+ .live-row{font-weight:600;color:var(--civic-blue)}
+</style>
+<style>
+ .status-card.c1{background:var(--critical-bg);border-color:var(--critical-border)}
+ .status-card.c2a{background:#FDEBDD;border-color:#F5C9A8}
+ .status-card.c2b{background:var(--attention-bg);border-color:var(--attention-border)}
+ .status-card.c3{background:var(--verified-bg);border-color:var(--verified-border)}
+ .status-card.none{background:#EEF1F4;border-color:var(--border)}
+ .c1 .badge-icon{background:#C62828}.c1 .badge-label{color:#C62828}
+ .c2a .badge-icon{background:#E8590C}.c2a .badge-label{color:#E8590C}
+ .c2b .badge-icon{background:#B87800}.c2b .badge-label{color:#B87800}
+ .c3 .badge-icon{background:#2E7D5B}.c3 .badge-label{color:#2E7D5B}
+ .none .badge-icon{background:#7A8896}.none .badge-label{color:#5B6B82}
+ .legend{background:#fff;padding:8px 10px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-size:12px;line-height:1.9}
+ .legend label{display:flex;align-items:center;gap:6px;cursor:pointer}
+ .legend i{width:12px;height:12px;border-radius:50%;display:inline-block}
+</style>
+</head>
+<body>
+
+<!-- ================= LANGUAGE SCREEN ================= -->
+<section class="screen active" id="screen-language">
+  <div class="lang-screen">
+    <div class="lang-card">
+      <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4v2H4V7l8-4z"/><path d="M5 10v9M9 10v9M15 10v9M19 10v9"/><path d="M3 21h18"/></svg>
+      <span class="brand-name" data-i18n="app_name">BMC Building Safety</span>
+      <h1 data-i18n="choose_language">Choose your language</h1>
+      <div class="lang-options">
+        <button class="lang-btn" onclick="selectLanguage('en')">English</button>
+        <button class="lang-btn" onclick="selectLanguage('hi')">हिंदी</button>
+        <button class="lang-btn" onclick="selectLanguage('mr')">मराठी</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HOME / SEARCH SCREEN ================= -->
+<section class="screen" id="screen-home">
+  <nav class="topnav">
+    <div class="page" style="display:flex;align-items:center;justify-content:space-between;">
+      <a class="brand" onclick="showScreen('home')">
+        <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4v2H4V7l8-4z"/><path d="M5 10v9M9 10v9M15 10v9M19 10v9"/><path d="M3 21h18"/></svg>
+        <span class="brand-name" data-i18n="app_name">BMC Building Safety</span>
+      </a>
+      <div class="nav-links">
+        <button onclick="showScreen('help')" data-i18n="help">Help</button>
+        <button onclick="showScreen('about')" data-i18n="about">About</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="home-hero">
+    <h1 data-i18n="welcome">WELCOME!</h1>
+    <button class="btn-primary" onclick="toggleSearch()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <span data-i18n="search_building">SEARCH FOR YOUR BUILDING</span>
+    </button>
+
+    <div class="search-panel hidden" id="searchPanel">
+      <input type="text" class="search-input" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="Type an address, PIN code or society name" oninput="handleSearchInput()" autocomplete="off">
+      <div class="search-results hidden" id="searchResults"></div>
+    </div>
+
+    <div class="or-divider" data-i18n="or">OR</div>
+    <button class="btn-secondary" onclick="showScreen('map')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 20l-6 2V6l6-2 6 2 6-2v16l-6 2-6-2z"/><path d="M9 4v16M15 6v16"/></svg>
+      <span data-i18n="go_to_map">GO TO MAP</span>
+    </button>
+  </div>
+
+  <div class="home-footer">
+    <button onclick="showScreen('help')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v4a1 1 0 001 1h4"/><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><path d="M9 13h6M9 17h6"/></svg>
+      <span data-i18n="news_education">NEWS / EDUCATION</span>
+    </button>
+    <button onclick="showScreen('help')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 8a3 3 0 00-3-3M15 8a3 3 0 01-3 3M15 8h5M3 8h5M9 5a3 3 0 00-3 3M9 11a3 3 0 01-3-3"/><path d="M5 21v-2a4 4 0 014-4h6a4 4 0 014 4v2"/></svg>
+      <span data-i18n="support">SUPPORT</span>
+    </button>
+  </div>
+</section>
+
+<!-- ================= MAP SCREEN ================= -->
+<section class="screen" id="screen-map">
+  <nav class="topnav">
+    <div class="page" style="display:flex;align-items:center;justify-content:space-between;">
+      <a class="brand" onclick="showScreen('home')">
+        <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4v2H4V7l8-4z"/><path d="M5 10v9M9 10v9M15 10v9M19 10v9"/><path d="M3 21h18"/></svg>
+        <span class="brand-name" data-i18n="app_name">BMC Building Safety</span>
+      </a>
+      <div class="nav-links">
+        <button onclick="showScreen('help')" data-i18n="help">Help</button>
+        <button onclick="showScreen('about')" data-i18n="about">About</button>
+      </div>
+    </div>
+  </nav>
+  <div class="page map-wrap">
+    <button class="back-link" onclick="showScreen('home')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span data-i18n="back_to_home">BACK TO HOME</span>
+    </button>
+    <p class="map-hint" data-i18n="map_hint">Tap a marker to view that building's status</p>
+    <div class="map-area" id="mapArea"></div>
+  </div>
+</section>
+
+<!-- ================= RESULT SCREEN ================= -->
+<section class="screen" id="screen-result">
+  <nav class="topnav">
+    <div class="page" style="display:flex;align-items:center;justify-content:space-between;">
+      <a class="brand" onclick="showScreen('home')">
+        <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4v2H4V7l8-4z"/><path d="M5 10v9M9 10v9M15 10v9M19 10v9"/><path d="M3 21h18"/></svg>
+        <span class="brand-name" data-i18n="app_name">BMC Building Safety</span>
+      </a>
+      <div class="nav-links">
+        <button onclick="showScreen('help')" data-i18n="help">Help</button>
+        <button onclick="showScreen('about')" data-i18n="about">About</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page result-wrap">
+    <button class="back-link" onclick="showScreen('home')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span data-i18n="back_to_home">BACK TO HOME</span>
+    </button>
+
+    <div class="result-grid">
+      <div>
+        <div class="status-row">
+          <div class="status-card" id="statusCard">
+            <h2 id="buildingName">Building name</h2>
+            <div class="status-badge">
+              <div class="badge-icon" id="badgeIcon"></div>
+              <span class="badge-label" id="badgeLabel">Status</span>
+            </div>
+            <div class="status-divider"></div>
+            <div class="meta-row">
+              <svg class="meta-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              <span><span class="meta-label" id="dateLabel">Last verified</span> <strong id="dateValue">—</strong></span>
+            </div>
+            <div class="meta-row">
+              <svg class="meta-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>
+              <span id="statusDesc">—</span>
+            </div>
+          </div>
+          <div class="photo-box" id="photoBox"></div>
+        </div>
+
+        <div class="accordion-item" id="accMeaning">
+          <button class="accordion-header" onclick="toggleAccordion('accMeaning')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <span data-i18n="what_does_this_mean">What does this mean?</span>
+            <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="accordion-body"><div class="accordion-body-inner" id="meaningText">—</div></div>
+        </div>
+
+        <div class="accordion-item" id="accAction">
+          <button class="accordion-header" onclick="toggleAccordion('accAction')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+            <span data-i18n="what_should_you_do">What should you do?</span>
+            <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="accordion-body"><div class="accordion-body-inner" id="actionText">—</div></div>
+        </div>
+
+        <div class="accordion-item" id="accHelp">
+          <button class="accordion-header" onclick="toggleAccordion('accHelp')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 00-5.4 0L3 12.6V21h8.4l6.3-6.3a4 4 0 000-5.4l-3-3z"/><path d="M15 9l-6 6"/></svg>
+            <span data-i18n="who_can_help">Who can help?</span>
+            <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="accordion-body"><div class="accordion-body-inner" id="helpText">—</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="side-card">
+          <h3 data-i18n="about_info_title">ABOUT THIS INFORMATION</h3>
+          <div class="side-row">
+            <svg class="side-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>
+            <span data-i18n="about_info_1">This information is from the BMC Building and Factories Department.</span>
+          </div>
+          <div class="side-hr"></div>
+          <div class="side-row">
+            <svg class="side-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+            <span data-i18n="about_info_2">Data is updated regularly and is available for public use.</span>
+          </div>
+        </div>
+
+        <div class="side-card help-card">
+          <h3 data-i18n="need_help_title">NEED HELP?</h3>
+          <p class="contact-name" data-i18n="contact_support">Contact BMC support</p>
+          <a class="contact-phone" href="tel:180022XXXX">1800-22-XXXX</a>
+          <p class="contact-hours" data-i18n="support_hours">10 AM – 6 PM</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HELP SCREEN ================= -->
+<section class="screen" id="screen-help">
+  <nav class="topnav">
+    <div class="page" style="display:flex;align-items:center;justify-content:space-between;">
+      <a class="brand" onclick="showScreen('home')">
+        <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4v2H4V7l8-4z"/><path d="M5 10v9M9 10v9M15 10v9M19 10v9"/><path d="M3 21h18"/></svg>
+        <span class="brand-name" data-i18n="app_name">BMC Building Safety</span>
+      </a>
+      <div class="nav-links"><button onclick="showScreen('about')" data-i18n="about">About</button></div>
+    </div>
+  </nav>
+  <div class="page info-wrap">
+    <button class="back-link" onclick="showScreen('home')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span data-i18n="back_to_home">BACK TO HOME</span>
+    </button>
+    <h1 data-i18n="help">Help</h1>
+    <div class="faq-item">
+      <h4>How do I check my building's status?</h4>
+      <p>Search by address, PIN code or society name from the home screen, or find your building on the map.</p>
+    </div>
+    <div class="faq-item">
+      <h4>What do C1, C2A, C2B and C3 mean?</h4>
+      <p>C1: dangerous, to be vacated and demolished. C2A: partly unsafe, repairs after vacating the dangerous part. C2B: major repairs, residents can stay. C3: minor repairs only.</p>
+    </div>
+    <div class="faq-item">
+      <h4>Who maintains this data?</h4>
+      <p>Records come from the BMC Building and Factories Department's Technical Advisory Committee, refreshed on a regular cycle.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ABOUT SCREEN ================= -->
+<section class="screen" id="screen-about">
+  <nav class="topnav">
+    <div class="page" style="display:flex;align-items:center;justify-content:space-between;">
+      <a class="brand" onclick="showScreen('home')">
+        <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4v2H4V7l8-4z"/><path d="M5 10v9M9 10v9M15 10v9M19 10v9"/><path d="M3 21h18"/></svg>
+        <span class="brand-name" data-i18n="app_name">BMC Building Safety</span>
+      </a>
+      <div class="nav-links"><button onclick="showScreen('help')" data-i18n="help">Help</button></div>
+    </div>
+  </nav>
+  <div class="page info-wrap">
+    <button class="back-link" onclick="showScreen('home')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span data-i18n="back_to_home">BACK TO HOME</span>
+    </button>
+    <h1 data-i18n="about">About</h1>
+    <div class="faq-item">
+      <p>This platform brings together official BMC building-safety records in one searchable place, so residents, tenants and buyers can check a building's status in plain language before deciding to stay, rent or buy — without digging through unformatted government PDFs.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="page footer-note-row">
+    <div class="footer-note">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>
+      <span data-i18n="footer_disclaimer">This platform shows official building safety information to help you make safe decisions.</span>
+    </div>
+    <div class="footer-links">
+      <a data-i18n="privacy">Privacy policy</a>
+      <a data-i18n="terms">Terms of use</a>
+      <a data-i18n="accessibility">Accessibility</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+
+</script>
+<script>
+/* ---------------- Translations ---------------- */
+const translations = {
+  en:{
+    app_name:"BMC Building Safety", choose_language:"Choose your language",
+    welcome:"WELCOME!", search_building:"SEARCH FOR YOUR BUILDING", or:"OR", go_to_map:"GO TO MAP",
+    news_education:"NEWS / EDUCATION", support:"SUPPORT", help:"HELP", about:"ABOUT",
+    back_to_home:"BACK TO HOME", verified:"VERIFIED", attention:"ATTENTION", critical:"CRITICAL",
+    last_verified:"Last verified", last_updated:"Last updated",
+    desc_verified:"No critical status recorded by BMC.", desc_attention:"Some updates are pending.",
+    desc_critical:"Immediate action required.",
+    what_does_this_mean:"What does this mean?", what_should_you_do:"What should you do?", who_can_help:"Who can help?",
+    about_info_title:"ABOUT THIS INFORMATION",
+    about_info_1:"This information is from the BMC Building and Factories Department.",
+    about_info_2:"Data is updated regularly and is available for public use.",
+    need_help_title:"NEED HELP?", contact_support:"Contact BMC support", support_hours:"10 AM – 6 PM",
+    footer_disclaimer:"This platform shows official building safety information to help you make safe decisions.",
+    privacy:"Privacy policy", terms:"Terms of use", accessibility:"Accessibility",
+    search_placeholder:"Type an address, PIN code or society name",
+    no_results:"No matches found. Try a different name.",
+    map_hint:"Tap a marker to view that building's status"
+  },
+  hi:{
+    app_name:"बीएमसी भवन सुरक्षा", choose_language:"अपनी भाषा चुनें",
+    welcome:"स्वागत है!", search_building:"अपनी इमारत खोजें", or:"या", go_to_map:"मानचित्र पर जाएं",
+    news_education:"समाचार / जानकारी", support:"सहायता", help:"मदद", about:"जानकारी",
+    back_to_home:"होम पर वापस जाएं", verified:"सत्यापित", attention:"ध्यान दें", critical:"गंभीर",
+    last_verified:"अंतिम सत्यापन", last_updated:"अंतिम अद्यतन",
+    desc_verified:"बीएमसी के पास इस भवन के लिए कोई गंभीर स्थिति दर्ज नहीं है।", desc_attention:"कुछ अपडेट लंबित हैं।",
+    desc_critical:"तुरंत कार्रवाई आवश्यक है।",
+    what_does_this_mean:"इसका क्या मतलब है?", what_should_you_do:"आपको क्या करना चाहिए?", who_can_help:"कौन मदद कर सकता है?",
+    about_info_title:"इस जानकारी के बारे में",
+    about_info_1:"यह जानकारी बीएमसी भवन और कारखाना विभाग से है।",
+    about_info_2:"डेटा नियमित रूप से अपडेट किया जाता है और सार्वजनिक उपयोग के लिए उपलब्ध है।",
+    need_help_title:"मदद चाहिए?", contact_support:"बीएमसी सहायता से संपर्क करें", support_hours:"सुबह 10 - शाम 6 बजे",
+    footer_disclaimer:"यह मंच आपको सुरक्षित निर्णय लेने में मदद करने के लिए आधिकारिक भवन सुरक्षा जानकारी दिखाता है।",
+    privacy:"गोपनीयता नीति", terms:"उपयोग की शर्तें", accessibility:"सुगम्यता",
+    search_placeholder:"पता, पिन कोड या सोसाइटी का नाम लिखें",
+    no_results:"कोई मिलान नहीं मिला। कोई और नाम आज़माएं।",
+    map_hint:"उस भवन की स्थिति देखने के लिए मार्कर पर टैप करें"
+  },
+  mr:{
+    app_name:"बीएमसी इमारत सुरक्षा", choose_language:"तुमची भाषा निवडा",
+    welcome:"स्वागत आहे!", search_building:"तुमची इमारत शोधा", or:"किंवा", go_to_map:"नकाशावर जा",
+    news_education:"बातम्या / माहिती", support:"मदत", help:"मदत केंद्र", about:"विषयी",
+    back_to_home:"मुख्यपृष्ठावर परत जा", verified:"पडताळणी झाली", attention:"लक्ष द्या", critical:"गंभीर",
+    last_verified:"शेवटची पडताळणी", last_updated:"शेवटचे अद्यतन",
+    desc_verified:"या इमारतीसाठी बीएमसीकडे कोणतीही गंभीर नोंद नाही.", desc_attention:"काही अद्यतने प्रलंबित आहेत.",
+    desc_critical:"त्वरित कारवाई आवश्यक आहे.",
+    what_does_this_mean:"याचा अर्थ काय?", what_should_you_do:"तुम्ही काय करावे?", who_can_help:"कोण मदत करू शकते?",
+    about_info_title:"या माहितीबद्दल",
+    about_info_1:"ही माहिती बीएमसी इमारत आणि कारखाना विभागाकडून आहे.",
+    about_info_2:"डेटा नियमितपणे अद्यतनित केला जातो आणि सार्वजनिक वापरासाठी उपलब्ध आहे.",
+    need_help_title:"मदत हवी आहे?", contact_support:"बीएमसी मदत केंद्राशी संपर्क साधा", support_hours:"सकाळी १० - संध्याकाळी ६",
+    footer_disclaimer:"हे व्यासपीठ तुम्हाला सुरक्षित निर्णय घेण्यास मदत करण्यासाठी अधिकृत इमारत सुरक्षा माहिती दाखवते.",
+    privacy:"गोपनीयता धोरण", terms:"वापर अटी", accessibility:"सुलभता",
+    search_placeholder:"पत्ता, पिन कोड किंवा सोसायटीचे नाव टाका",
+    no_results:"काही जुळणी आढळली नाही. दुसरे नाव वापरून पहा.",
+    map_hint:"त्या इमारतीची स्थिती पाहण्यासाठी मार्करवर टॅप करा"
+  }
+};
+
+/* Longer explanatory content: English-authoritative. Shown as-is regardless of
+   language until professionally translated, with a small note in hi/mr. */
+const detailContent = {
+  verified:{
+    meaning:"BMC has no dangerous-building classification on record for this address. This does not replace your own visual checks or your society's routine maintenance.",
+    action:"Keep this page bookmarked for future updates. If you notice cracks, water seepage or other visible damage, report it to your society or BMC directly.",
+    help:"BMC ward office — general enquiries. Your society's managing committee — for maintenance requests."
+  },
+  attention:{
+    meaning:"BMC has flagged this building for follow-up. It may be undergoing a structural audit, awaiting repairs, or have an update pending confirmation.",
+    action:"Ask your society secretary whether a structural audit has been scheduled. Don't ignore visible warning signs such as cracks or water seepage in common areas.",
+    help:"BMC ward office — to ask about audit status. Your society's managing committee — for repair timelines."
+  },
+  critical:{
+    meaning:"This building has been officially classified as dangerous by BMC. Continuing to occupy it puts residents at risk of structural collapse.",
+    action:"Contact your local BMC ward office immediately. Ask about your rehousing rights. Avoid staying in the building until it has been reassessed.",
+    help:"BMC ward office — Building and Factories Department. Legal aid / RTI helpline — free guidance on tenant rights and compensation."
+  }
+};
+
+let currentLang = 'en';
+
+/* ---------------- Mock building dataset ---------------- */
+const buildings = [
+  {id:'b1', name:'Shiv Shanti CHS', status:'verified', date:'12 Aug 2026', mapX:'28%', mapY:'62%'},
+  {id:'b2', name:'Amber Heights', status:'attention', date:'02 Aug 2026', mapX:'52%', mapY:'34%'},
+  {id:'b3', name:'Kamala Nagar Building', status:'critical', date:'18 Aug 2026', mapX:'74%', mapY:'58%'},
+  {id:'b4', name:'Rosewood Society', status:'attention', date:'27 Jul 2026', mapX:'40%', mapY:'78%'},
+  {id:'b5', name:'Sunrise Apartments', status:'verified', date:'05 Aug 2026', mapX:'63%', mapY:'22%'}
+];
+
+const statusColor = {verified:'#2E7D5B', attention:'#D99000', critical:'#C62828'};
+
+const icons = {
+  check:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>',
+  alert:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L2.5 17a2 2 0 001.7 3h15.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>',
+  exclaim:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>',
+  pin:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 21s-6-5.686-6-10a6 6 0 1112 0c0 4.314-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>'
+};
+
+/* ---------------- Screen navigation ---------------- */
+function forEachEl(selector, fn){
+  const list = document.querySelectorAll(selector);
+  for(let i=0;i<list.length;i++){ fn(list[i]); }
+}
+
+function showScreen(name){
+  forEachEl('.screen', function(s){ s.classList.remove('active'); });
+  document.getElementById('screen-'+name).classList.add('active');
+  window.scrollTo(0,0);
+  const panel = document.getElementById('searchPanel');
+  if(panel && name!=='home'){ panel.classList.add('hidden'); }
+}
+
+function selectLanguage(lang){
+  currentLang = lang;
+  document.getElementById('htmlRoot').setAttribute('lang', lang);
+  applyTranslations();
+  showScreen('home');
+}
+
+function applyTranslations(){
+  const dict = translations[currentLang];
+  forEachEl('[data-i18n]', function(el){
+    const key = el.getAttribute('data-i18n');
+    if(dict[key]) el.textContent = dict[key];
+  });
+  forEachEl('[data-i18n-placeholder]', function(el){
+    const key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key]) el.placeholder = dict[key];
+  });
+}
+
+/* ---------------- Search ---------------- */
+function toggleSearch(){
+  document.getElementById('searchPanel').classList.toggle('hidden');
+  document.getElementById('searchInput').focus();
+}
+
+function handleSearchInput(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const box = document.getElementById('searchResults');
+  if(!q){ box.classList.add('hidden'); box.innerHTML=''; return; }
+  const matches = buildings.filter(b=>b.name.toLowerCase().includes(q));
+  box.innerHTML = '';
+  if(matches.length===0){
+    box.innerHTML = '<div class="search-empty">'+translations[currentLang].no_results+'</div>';
+  } else {
+    matches.forEach(b=>{
+      const item = document.createElement('button');
+      item.className='search-result-item';
+      item.innerHTML = '<span class="result-dot" style="background:'+colorOf(b)+'"></span>'+
+                        '<span class="rr-name">'+b.name+'</span>'+
+                        '<span class="rr-status">'+labelOf(b)+'</span>';
+      item.onclick = ()=>renderResult(b.id);
+      box.appendChild(item);
+    });
+  }
+  box.classList.remove('hidden');
+}
+
+/* ---------------- Map ---------------- */
+function buildMap(){
+  const area = document.getElementById('mapArea');
+  area.innerHTML='';
+  buildings.forEach(b=>{
+    const pin = document.createElement('button');
+    pin.className='pin';
+    pin.style.left=b.mapX;
+    pin.style.top=b.mapY;
+    pin.setAttribute('aria-label', b.name);
+    pin.innerHTML = '<span class="pin-dot" style="background:'+colorOf(b)+'">'+icons.pin+'</span>'+
+                     '<span class="pin-label">'+b.name+'</span>';
+    pin.onclick=()=>renderResult(b.id);
+    area.appendChild(pin);
+  });
+}
+
+/* ---------------- Result rendering ---------------- */
+function toggleAccordion(id){
+  const item = document.getElementById(id);
+  const body = item.querySelector('.accordion-body');
+  const isOpen = item.classList.contains('open');
+  if(isOpen){
+    body.style.maxHeight = '0px';
+    item.classList.remove('open');
+  } else {
+    item.classList.add('open');
+    body.style.maxHeight = body.scrollHeight + 'px';
+  }
+}
+
+function buildingSVG(){
+  return '<svg viewBox="0 0 260 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">'+
+    '<rect width="260" height="180" fill="#EAF1F8"/>'+
+    '<rect x="40" y="30" width="180" height="140" fill="#C9D8E8"/>'+
+    '<rect x="55" y="45" width="24" height="24" fill="#EAF1F8"/><rect x="90" y="45" width="24" height="24" fill="#EAF1F8"/>'+
+    '<rect x="125" y="45" width="24" height="24" fill="#EAF1F8"/><rect x="160" y="45" width="24" height="24" fill="#EAF1F8"/>'+
+    '<rect x="55" y="80" width="24" height="24" fill="#EAF1F8"/><rect x="90" y="80" width="24" height="24" fill="#EAF1F8"/>'+
+    '<rect x="125" y="80" width="24" height="24" fill="#EAF1F8"/><rect x="160" y="80" width="24" height="24" fill="#EAF1F8"/>'+
+    '<rect x="55" y="115" width="24" height="24" fill="#EAF1F8"/><rect x="90" y="115" width="24" height="24" fill="#EAF1F8"/>'+
+    '<rect x="125" y="115" width="24" height="24" fill="#EAF1F8"/><rect x="160" y="115" width="24" height="24" fill="#EAF1F8"/>'+
+    '<rect x="118" y="150" width="24" height="20" fill="#8FA8C2"/>'+
+    '<rect x="0" y="170" width="260" height="10" fill="#B9CBDF"/>'+
+    '</svg>';
+}
+
+function renderResult(id){
+  const b = buildings.find(x=>x.id===id);
+  if(!b) return;
+  const dict = translations[currentLang];
+  const detail = detailContent[b.status];
+
+  document.getElementById('buildingName').textContent = b.name;
+  const card = document.getElementById('statusCard');
+  card.className = 'status-card '+b.status;
+
+  const iconMap = {verified:icons.check, attention:icons.alert, critical:icons.exclaim};
+  document.getElementById('badgeIcon').innerHTML = iconMap[b.status];
+  document.getElementById('badgeLabel').textContent = dict[b.status];
+  document.getElementById('dateLabel').textContent = b.status==='verified' ? dict.last_verified : dict.last_updated;
+  document.getElementById('dateValue').textContent = b.date;
+  document.getElementById('statusDesc').textContent = dict['desc_'+b.status];
+  document.getElementById('photoBox').innerHTML = buildingSVG();
+
+  const note = (currentLang!=='en') ? '<div class="lang-note">Full translation coming soon — shown in English for accuracy.</div>' : '';
+  document.getElementById('meaningText').innerHTML = detail.meaning + note;
+  document.getElementById('actionText').innerHTML = detail.action + note;
+  document.getElementById('helpText').innerHTML = detail.help + note;
+
+  ['accMeaning','accAction','accHelp'].forEach(aid=>{
+    const item = document.getElementById(aid);
+    item.classList.remove('open');
+    item.querySelector('.accordion-body').style.maxHeight='0px';
+  });
+
+  document.getElementById('searchInput').value='';
+  document.getElementById('searchResults').classList.add('hidden');
+  document.getElementById('searchPanel').classList.add('hidden');
+
+  showScreen('result');
+}
+
+/* ---------------- Init ---------------- */
+buildMap();
+applyTranslations();
+</script>
+<script src="data/c1.js"></script>
+<script src="data/graded.js"></script>
+<script src="data/coords.js"></script>
+<script>
+/* ===== LIVE DATA LAYER (real BMC C1 list + OSM map + photos) ===== */
+const CONFIG={ MAPILLARY_TOKEN:'' /* paste free client token: mapillary.com/dashboard/developers */ };
+const WARD={A:[18.93,72.833],B:[18.96,72.836],C:[18.95,72.829],D:[18.96,72.812],E:[18.975,72.833],FS:[19.0,72.84],FN:[19.03,72.857],GS:[19.0,72.82],GN:[19.03,72.84],HE:[19.08,72.87],HW:[19.06,72.83],KE:[19.115,72.87],KW:[19.125,72.835],L:[19.07,72.88],MW:[19.05,72.89],N:[19.09,72.91],PN:[19.185,72.84],PS:[19.16,72.855],RC:[19.23,72.855],RN:[19.25,72.862],RS:[19.2,72.84],S:[19.14,72.94],T:[19.17,72.955]};
+const SRC='BMC C1 list dated 30 Apr 2026 (mcgm.gov.in)';
+const CLS={
+ c1:{label:'C1 \u00b7 DANGEROUS',color:'#C62828',bucket:'critical',desc:'BMC lists this building as very dangerous and dilapidated.',meaning:'Declared dangerous under BMC rules. Residents are to vacate and the building is to be demolished.',action:'Contact your BMC ward office immediately and ask about your rehousing rights. Avoid staying in the building.',help:'BMC ward office \u2014 Building and Factories Department. Legal aid / RTI helpline \u2014 tenant rights.'},
+ c2a:{label:'C2A \u00b7 PARTLY UNSAFE',color:'#E8590C',bucket:'attention',desc:'Parts of this building are unsafe; major repairs needed after vacating them.',meaning:'The dangerous portions must be vacated and repaired or demolished. The rest may be usable after safety checks.',action:'Ask your society for the audit report and repair timeline. Stay away from the unsafe portions.',help:'BMC ward office \u2014 audit status. Society managing committee \u2014 repair schedule.'},
+ c2b:{label:'C2B \u00b7 MAJOR REPAIRS',color:'#D99000',bucket:'attention',desc:'Major structural repairs needed; residents can usually stay meanwhile.',meaning:'The building needs major structural repairs, but BMC does not require it to be vacated.',action:'Ask your society when repairs will start. Report new cracks or seepage promptly.',help:'Society managing committee \u2014 repairs. BMC ward office \u2014 follow-up.'},
+ c3:{label:'C3 \u00b7 MINOR REPAIRS',color:'#2E7D5B',bucket:'verified',desc:'Only minor repairs needed.',meaning:'The building is in fair condition and needs only minor repairs and routine maintenance.',action:'Keep up routine maintenance and the 30-year structural audit schedule.',help:'Society managing committee \u2014 maintenance.'},
+ none:{label:'NO BMC RECORD FOUND',color:'#7A8896',bucket:'verified',desc:'Not in BMC\u2019s published lists. This is not a safety certificate.',meaning:'BMC publishes a per-building list only for C1. Absence from it does not confirm the building is safe or give its C2/C3 grade.',action:'Ask your society for its latest structural audit report (mandatory for buildings over 30 years).',help:'BMC ward office \u2014 Building and Factories Department.'}};
+const colorOf=b=>CLS[b.cls||'none'].color, labelOf=b=>CLS[b.cls||'none'].label.split(' \u00b7 ')[0];
+let map,layer;
+translations.en.verified='NO C1 RECORD';translations.en.desc_verified='Not on BMC\u2019s published C1 (dangerous) list. This is not a safety certificate.';
+translations.hi.verified='C1 सूची में नहीं';translations.mr.verified='C1 यादीत नाही';
+detailContent.verified.meaning='This building does not appear in BMC\u2019s published C1 list. BMC has not publicly listed a C2/C3 grade for it, so this does not confirm it is safe.';
+detailContent.critical.meaning='BMC lists this building as C1: dangerous and dilapidated, to be vacated.';
+const dist=(a,b,c,d)=>{const R=6371e3,p=Math.PI/180,x=(c-a)*p,y=(d-b)*p*Math.cos(a*p);return R*Math.hypot(x,y);};
+async function loadData(){
+  buildings.length=0;let coords={};
+  coords=window.COORDS||{};if(!window.COORDS){try{coords=await (await fetch('data/coords.json')).json();}catch(e){}}
+  try{(window.C1||await (await fetch('data/c1.psv')).text()).trim().split('\n').forEach((l,i)=>{
+    const [ward,name,address]=l.split('|'),id='c'+(i+1),c=coords[id];
+    const w=WARD[ward]||[19.07,72.87],j=((i*37)%100-50)/6000;
+    buildings.push({id,name,address,ward,cls:'c1',status:'critical',date:'30 Apr 2026',
+      lat:c?c[0]:w[0]+j,lng:c?c[1]:w[1]-j,prec:c?c[2]:'area'});});}catch(e){console.error(e);}
+  try{(window.GRADED!==undefined?window.GRADED:await (await fetch('data/graded.psv')).text()).split('\n').filter(l=>l.trim()&&l[0]!=='#').forEach((l,i)=>{
+    const [cls,ward,name,address,la,ln]=l.split('|'),w=WARD[ward]||[19.07,72.87],has=la&&ln;
+    if(CLS[cls])buildings.push({id:'g'+i,name,address,ward,cls,status:CLS[cls].bucket,date:'per BMC record',lat:has?+la:w[0],lng:has?+ln:w[1],prec:has?'building':'area'});});}catch(e){}
+  [['d1','Sample Heights (C2A SAMPLE)','c2a',19.119,72.847],['d2','Sample Residency (C2B SAMPLE)','c2b',19.056,72.83],['d3','Sample Court (C3 SAMPLE)','c3',19.0,72.82]]
+   .forEach(r=>buildings.push({id:r[0],name:r[1],address:'Sample data for demo',cls:r[2],status:CLS[r[2]].bucket,date:'sample',lat:r[3],lng:r[4],prec:'area',demo:true}));
+}
+function initMap(){
+  if(map){map.invalidateSize();return;}
+  mapArea.innerHTML='';map=L.map('mapArea').setView([19.08,72.87],11);
+  const TL=[['https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}],
+    ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles &copy; Esri'}],
+    ['https://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles &copy; Esri'}]];
+  let ti=location.protocol.startsWith('http')?0:1,bad=0,tl;
+  const useTL=()=>{if(tl)map.removeLayer(tl);bad=0;tl=L.tileLayer(TL[ti][0],TL[ti][1]).addTo(map);
+    tl.on('tileerror',()=>{if(++bad>=3&&ti<TL.length-1){ti++;useTL();}});};useTL();
+  layer=L.layerGroup().addTo(map);
+  const on={c1:1,c2a:1,c2b:1,c3:1},cnt={};buildings.forEach(b=>cnt[b.cls]=(cnt[b.cls]||0)+1);
+  const draw=()=>{layer.clearLayers();buildings.filter(b=>on[b.cls]).forEach(b=>{L.circleMarker([b.lat,b.lng],{radius:8,color:'#fff',weight:2,fillColor:colorOf(b),fillOpacity:.95})
+    .bindPopup('<b>'+b.name+'</b><br>'+labelOf(b)+(b.demo?' (sample)':'')+'<br>'+(b.address||'')+(b.prec==='area'&&!b.demo?'<br><i>Approximate area</i>':'')+'<br><a href="#" onclick="renderResult(\''+b.id+'\');return false">View status \u2192</a>').addTo(layer);});};
+  const lg=L.control({position:'bottomleft'});lg.onAdd=()=>{const d=L.DomUtil.create('div','legend');
+    d.innerHTML=['c1','c2a','c2b','c3'].map(k=>'<label><input type="checkbox" checked data-k="'+k+'"><i style="background:'+CLS[k].color+'"></i>'+k.toUpperCase()+' ('+(cnt[k]||0)+')</label>').join('');
+    L.DomEvent.disableClickPropagation(d);d.onchange=e=>{on[e.target.dataset.k]=e.target.checked?1:0;draw();};return d;};lg.addTo(map);draw();
+}
+const _show=showScreen;showScreen=function(n){_show(n);if(n==='map')setTimeout(initMap,60);};
+buildMap=function(){};
+/* search: local first, then any Mumbai address via OSM Nominatim (on Enter/click only, per its policy) */
+handleSearchInput=function(){
+  const q=searchInput.value.trim().toLowerCase(),box=searchResults;
+  if(!q){box.classList.add('hidden');box.innerHTML='';return;}
+  const m=buildings.filter(b=>(b.name+' '+b.address+' '+b.ward).toLowerCase().includes(q)).slice(0,8);
+  box.innerHTML='';
+  m.forEach(b=>{const i=document.createElement('button');i.className='search-result-item';
+    i.innerHTML='<span class="result-dot" style="background:'+colorOf(b)+'"></span><span class="rr-name">'+b.name+'</span><span class="rr-status">'+labelOf(b)+'</span>';
+    i.onclick=()=>renderResult(b.id);box.appendChild(i);});
+  const l=document.createElement('button');l.className='search-result-item live-row';
+  l.textContent='\uD83D\uDD0D Search all of Mumbai for \u201C'+searchInput.value.trim()+'\u201D';l.onclick=liveSearch;box.appendChild(l);
+  box.classList.remove('hidden');
+};
+searchInput.addEventListener('keydown',e=>{if(e.key==='Enter')liveSearch();});
+async function liveSearch(){
+  const t=searchInput.value.trim();if(!t)return;
+  searchResults.innerHTML='<div class="search-empty">Searching Mumbai\u2026</div>';
+  try{
+    const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&countrycodes=in&viewbox=72.75,19.30,73.05,18.88&bounded=1&q='+encodeURIComponent(t));
+    const j=await r.json();searchResults.innerHTML='';
+    if(!j.length){searchResults.innerHTML='<div class="search-empty">'+translations[currentLang].no_results+'</div>';return;}
+    j.forEach(p=>{const lat=+p.lat,lng=+p.lon,hit=buildings.find(b=>!b.demo&&b.prec!=='area'&&dist(lat,lng,b.lat,b.lng)<60);
+      const i=document.createElement('button');i.className='search-result-item';
+      const st=hit||{cls:'none'};
+      i.innerHTML='<span class="result-dot" style="background:'+colorOf(st)+'"></span><span class="rr-name">'+p.display_name.split(',').slice(0,3).join(',')+'</span><span class="rr-status">'+labelOf(st)+'</span>';
+      i.onclick=()=>{if(hit)return renderResult(hit.id);const nb={id:'x'+p.place_id,name:p.name||p.display_name.split(',')[0],address:p.display_name,cls:'none',status:'verified',date:'',lat,lng,prec:'building'};buildings.push(nb);renderResult(nb.id);};
+      searchResults.appendChild(i);});
+  }catch(e){searchResults.innerHTML='<div class="search-empty">Search unavailable. Check connection.</div>';}
+}
+/* result: address, links, photo chain (own photo > Mapillary > Wikimedia Commons > drawing) */
+const _render=renderResult;
+renderResult=function(id){
+  _render(id);const b=buildings.find(x=>x.id===id);if(!b)return;
+  const C=CLS[b.cls||'none'],note=(currentLang!=='en')?'<div class="lang-note">Full translation coming soon \u2014 shown in English for accuracy.</div>':'';
+  statusCard.className='status-card '+(b.cls||'none');badgeLabel.textContent=C.label;statusDesc.textContent=C.desc;
+  dateLabel.textContent=b.date==='sample'?'Sample record':'BMC list date';dateValue.textContent=b.date||'\u2014';
+  meaningText.innerHTML=C.meaning+note;actionText.innerHTML=C.action+note;helpText.innerHTML=C.help+note;
+  let el=document.getElementById('bInfo');if(!el){buildingName.insertAdjacentHTML('afterend','<div class="binfo" id="bInfo"></div>');el=document.getElementById('bInfo');}
+  const ll=b.lat+','+b.lng;
+  el.innerHTML=(b.ward?'<span class="tag">Ward '+b.ward+'</span>':'')+'<span class="tag">'+(b.demo?'SAMPLE DATA':(b.cls==='c1'?'Source: '+SRC:(b.cls==='none'?'No public record':'Source: BMC record')))+'</span><br>'+(b.address||'')+
+   (b.prec==='area'&&!b.demo?'<br><i>Location approximate (ward-level)</i>':'')+'<br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination='+ll+'">Directions</a><a target="_blank" rel="noopener" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint='+ll+'">Street View</a>';
+  loadPhoto(b);
+};
+async function loadPhoto(b){
+  const box=photoBox,set=(u,c)=>{box.innerHTML='<img alt="'+b.name+'" src="'+u+'"><div class="photo-cap">'+c+'</div>';};
+  if(b.photo)return set(b.photo,'Photo: project team');
+  if(b.prec==='area')return;
+  try{if(CONFIG.MAPILLARY_TOKEN){const d=.0006,r=await fetch('https://graph.mapillary.com/images?access_token='+CONFIG.MAPILLARY_TOKEN+'&fields=id,thumb_1024_url&limit=1&bbox='+[b.lng-d,b.lat-d,b.lng+d,b.lat+d].join(','));
+      const j=await r.json();if(j.data&&j.data[0])return set(j.data[0].thumb_1024_url,'Street-level image via Mapillary (CC BY-SA)');}}catch(e){}
+  try{const r=await fetch('https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=geosearch&ggsnamespace=6&ggsradius=120&ggslimit=1&ggscoord='+b.lat+'%7C'+b.lng+'&prop=imageinfo&iiprop=url&iiurlwidth=600');
+      const p=Object.values((await r.json()).query?.pages||{})[0];if(p?.imageinfo)return set(p.imageinfo[0].thumburl,'Wikimedia Commons (open licence)');}catch(e){}
+}
+loadData().then(()=>{if(document.getElementById('screen-map').classList.contains('active'))initMap();});
+</script>
+</body>
+</html>
