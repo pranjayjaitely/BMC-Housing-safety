@@ -919,6 +919,9 @@ Object.assign(translations.en,{
   voice_ready:"Voice search is ready.", photo_unavailable:"No verified photograph is available for this building yet.",
   location_exact:"Building pin (coordinate-level location).", location_approximate:"Approximate ward-level location — this is not an exact building pin.",
   address_label:"Address", source_label:"Source", sample_label:"Sample data",
+  ward_label:"Ward", record_date:"Record date", directions:"Directions", street_view:"Street View",
+  c1_source:"BMC C1 list · 30 Apr 2026", other_source:"BMC record", no_record_source:"No public C1 entry",
+  status_file_disclaimer:"BMC Building Safety prototype. Published BMC records are shown where available. No C1 entry is not a safety certificate. Sample records are illustrative only.",
   faq_search_title:"How do I check my building's status?",
   faq_search_body:"Search by building name, address, PIN code or society name from the home screen.",
   faq_grades_title:"What do C1, C2A, C2B and C3 mean?",
@@ -937,6 +940,9 @@ Object.assign(translations.hi,{
   voice_ready:"आवाज़ से खोज तैयार है।", photo_unavailable:"इस इमारत की सत्यापित तस्वीर अभी उपलब्ध नहीं है।",
   location_exact:"इमारत का पिन (निर्देशांक-स्तर का स्थान)।", location_approximate:"वार्ड-स्तर का अनुमानित स्थान — यह इमारत का सटीक पिन नहीं है।",
   address_label:"पता", source_label:"स्रोत", sample_label:"नमूना डेटा",
+  ward_label:"वार्ड", record_date:"रिकॉर्ड की तारीख", directions:"दिशा-निर्देश", street_view:"स्ट्रीट व्यू",
+  c1_source:"बीएमसी C1 सूची · 30 अप्रैल 2026", other_source:"बीएमसी रिकॉर्ड", no_record_source:"कोई सार्वजनिक C1 प्रविष्टि नहीं",
+  status_file_disclaimer:"बीएमसी भवन सुरक्षा प्रोटोटाइप। जहाँ उपलब्ध है, प्रकाशित बीएमसी रिकॉर्ड दिखाए गए हैं। C1 रिकॉर्ड न मिलना सुरक्षा प्रमाणपत्र नहीं है। नमूना रिकॉर्ड केवल उदाहरण के लिए हैं।",
   faq_search_title:"मैं अपनी इमारत की स्थिति कैसे जाँचूँ?",
   faq_search_body:"मुख्य स्क्रीन पर इमारत का नाम, पता, पिन कोड या सोसायटी का नाम खोजें।",
   faq_grades_title:"C1, C2A, C2B और C3 का क्या अर्थ है?",
@@ -955,6 +961,9 @@ Object.assign(translations.mr,{
   voice_ready:"आवाजाद्वारे शोध तयार आहे.", photo_unavailable:"या इमारतीचा सत्यापित फोटो अद्याप उपलब्ध नाही.",
   location_exact:"इमारतीचे पिन (अचूक निर्देशांक).", location_approximate:"प्रभाग-स्तरीय अंदाजे ठिकाण — हा इमारतीचा अचूक पिन नाही.",
   address_label:"पत्ता", source_label:"स्रोत", sample_label:"नमुना डेटा",
+  ward_label:"प्रभाग", record_date:"नोंदीची तारीख", directions:"दिशा", street_view:"स्ट्रीट व्ह्यू",
+  c1_source:"बीएमसी C1 यादी · 30 एप्रिल 2026", other_source:"बीएमसी नोंद", no_record_source:"सार्वजनिक C1 नोंद नाही",
+  status_file_disclaimer:"बीएमसी बिल्डिंग सेफ्टी प्रोटोटाइप. उपलब्ध ठिकाणी प्रकाशित बीएमसी नोंदी दाखवल्या आहेत. C1 नोंद नसणे हे सुरक्षिततेचे प्रमाणपत्र नाही. नमुना नोंदी केवळ उदाहरणासाठी आहेत.",
   faq_search_title:"मी माझ्या इमारतीची स्थिती कशी तपासू?",
   faq_search_body:"मुख्य स्क्रीनवर इमारतीचे नाव, पत्ता, पिन कोड किंवा सोसायटीचे नाव शोधा.",
   faq_grades_title:"C1, C2A, C2B आणि C3 यांचा अर्थ काय?",
@@ -1208,13 +1217,13 @@ renderResult=function(id){
   const info=document.getElementById("bInfo");
   if(info){
     const address=(b.address||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-    const label=b.ward?'<span class="tag">'+("Ward "+b.ward)+'</span>':"";
-    const source=b.demo?translations[currentLang].sample_label:(b.cls==="c1"?"BMC C1 · 30 Apr 2026":(b.cls==="none"?"No public C1 entry":"BMC record"));
+    const label=b.ward?'<span class="tag">'+(translations[currentLang].ward_label+" "+b.ward)+'</span>':"";
+    const source=b.demo?translations[currentLang].sample_label:(b.cls==="c1"?translations[currentLang].c1_source:(b.cls==="none"?translations[currentLang].no_record_source:translations[currentLang].other_source));
     const safeSource=String(source).replace(/&/g,"&amp;").replace(/</g,"&lt;");
     const ll=encodeURIComponent(b.lat+","+b.lng);
     info.innerHTML=label+'<span class="tag">'+safeSource+'</span><br><strong>'+translations[currentLang].address_label+':</strong> '+address+
-      '<br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination='+ll+'">Directions</a>'+
-      '<a target="_blank" rel="noopener" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint='+ll+'">Street View</a>';
+      '<br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination='+ll+'">'+translations[currentLang].directions+'</a>'+
+      '<a target="_blank" rel="noopener" href="https://www.google.com/maps/@?api=1&map_action=pano&viewpoint='+ll+'">'+translations[currentLang].street_view+'</a>';
   }
   const accuracy=document.getElementById("locationAccuracy");
   if(accuracy)accuracy.textContent=b.prec==="area"?translations[currentLang].location_approximate:translations[currentLang].location_exact;
@@ -1249,7 +1258,7 @@ function initBuildingMap(b){
   buildingPinLayer.clearLayers();
   if(b.prec==="area"){
     L.circle(center,{radius:650,color:"#D99000",weight:2,fillColor:"#D99000",fillOpacity:.13}).addTo(buildingPinLayer);
-    L.circleMarker(center,{radius:7,color:"#fff",weight:2,fillColor:"#D99000",fillOpacity:1}).bindTooltip("Approximate ward area").addTo(buildingPinLayer);
+    L.circleMarker(center,{radius:7,color:"#fff",weight:2,fillColor:"#D99000",fillOpacity:1}).bindTooltip(translations[currentLang].location_approximate).addTo(buildingPinLayer);
   }else{
     L.marker(center).bindTooltip(localizedBuildingName(b.name)).addTo(buildingPinLayer);
   }
@@ -1333,8 +1342,8 @@ function statusSummary(){
     localizedCopy(cls+"_label"),
     localizedCopy(cls+"_desc"),
     translations[currentLang].address_label+": "+(b.address||"—"),
-    "Ward: "+(b.ward||"—"),
-    "Record date: "+(b.date||"—"),
+    translations[currentLang].ward_label+": "+(b.ward||"—"),
+    translations[currentLang].record_date+": "+(b.date||"—"),
     "",
     localizedCopy(cls+"_meaning"),
     "",
@@ -1342,7 +1351,7 @@ function statusSummary(){
     "",
     localizedCopy(cls+"_help"),
     "",
-    "BMC Building Safety prototype. Data is based on published BMC records where available. No C1 entry does not mean a building is certified safe. Sample records are illustrative only."
+    translations[currentLang].status_file_disclaimer
   ].join("\n");
 }
 function saveBuildingStatus(){
