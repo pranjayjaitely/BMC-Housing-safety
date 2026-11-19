@@ -135,10 +135,10 @@ function toolbar(){
  const live=document.createElement("div");live.id="globalFeedback";live.className="sr-only";live.setAttribute("aria-live","polite");document.body.appendChild(live);updateToolbar();
 }
 function updateToolbar(){const b=$("#globalNightToggle");if(b){const on=document.documentElement.classList.contains("night-mode");b.textContent=on?t("day"):t("night");b.setAttribute("aria-pressed",String(on));}}
-function languageBack(){const s=$("#screen-language .lang-screen");if(s&&!$("#languageBack")){const b=document.createElement("button");b.id="languageBack";b.className="language-back";b.textContent=t("back");b.onclick=()=>{if(history.length>1)history.back();};s.appendChild(b);}}
+function languageBack(){const b=$("#languageBack");if(b)b.remove();}
 async function init(){
  try{const lang=localStorage.getItem("bmc-language");if(["en","hi","mr"].includes(lang))currentLang=lang;if(localStorage.getItem("bmc-night-mode")==="on")document.documentElement.classList.add("night-mode");}catch(e){}
- addCss();addAwareness();toolbar();languageBack();
+ addCss();addAwareness();toolbar();
  // Reload from the published source file, then discard all legacy demo rows.
  await loadData();const valid=buildings.filter(b=>!b.demo&&b.cls&&b.cls!=="none"&&b.name&&b.address);buildings.splice(0,buildings.length,...valid);
  buildings.forEach((b,i)=>{b.referenceId="APP-"+String(b.cls).toUpperCase()+"-"+String(i+1).padStart(3,"0");if(!exact(b)){delete b.lat;delete b.lng;b.prec="unverified";}});
