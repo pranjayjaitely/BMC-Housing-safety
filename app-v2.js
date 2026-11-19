@@ -137,14 +137,14 @@ function toolbar(){
 function updateToolbar(){const b=$("#globalNightToggle");if(b){const on=document.documentElement.classList.contains("night-mode");b.textContent=on?t("day"):t("night");b.setAttribute("aria-pressed",String(on));}}
 function languageBack(){const s=$("#screen-language .lang-screen");if(s&&!$("#languageBack")){const b=document.createElement("button");b.id="languageBack";b.className="language-back";b.textContent=t("back");b.onclick=()=>{if(history.length>1)history.back();};s.appendChild(b);}}
 async function init(){
+ try{const lang=localStorage.getItem("bmc-language");if(["en","hi","mr"].includes(lang))currentLang=lang;if(localStorage.getItem("bmc-night-mode")==="on")document.documentElement.classList.add("night-mode");}catch(e){}
  addCss();addAwareness();toolbar();languageBack();
  // Reload from the published source file, then discard all legacy demo rows.
  await loadData();const valid=buildings.filter(b=>!b.demo&&b.cls&&b.cls!=="none"&&b.name&&b.address);buildings.splice(0,buildings.length,...valid);
  buildings.forEach((b,i)=>{b.referenceId="APP-"+String(b.cls).toUpperCase()+"-"+String(i+1).padStart(3,"0");if(!exact(b)){delete b.lat;delete b.lng;b.prec="unverified";}});
- addDetails();replaceSearch();
+ categoryCards();filters();renderWardList();addDetails();replaceSearch();
  $$(".screen#screen-language .lang-btn").forEach(b=>{b.onclick=()=>selectLanguage(b.textContent.includes("हिंदी")?"hi":b.textContent.includes("मराठी")?"mr":"en");});
  $$(".topnav .nav-links").forEach(n=>{n.innerHTML='<button type="button" class="journey-back" onclick="goBack()">'+t("back")+'</button>';});
- try{const lang=localStorage.getItem("bmc-language");if(["en","hi","mr"].includes(lang))currentLang=lang;if(localStorage.getItem("bmc-night-mode")==="on")document.documentElement.classList.add("night-mode");}catch(e){}
  updateToolbar();window.__screenHistory=["language"];
  window.showScreen=showScreen;window.goBack=goBack;window.selectLanguage=selectLanguage;window.continueToSearch=()=>showScreen("home");window.renderResult=renderBuilding;window.toggleNightMode=()=>$("#globalNightToggle").click();window.handleSearchInput=localSearch;
 }
