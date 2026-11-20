@@ -369,7 +369,6 @@ try{
 <section class="screen active" id="screen-language">
   <div class="lang-screen">
     <img class="language-logo" src="assets/bmc-logo.png" alt="Brihanmumbai Municipal Corporation logo" width="64" height="64" loading="eager">
-    <button type="button" class="night-toggle" onclick="toggleNightMode()" aria-label="Night mode" aria-pressed="false" title="Night mode"><span class="night-icon" aria-hidden="true">☾</span><span class="night-label">Night mode</span></button>
     <div class="lang-card">
       
       <span class="brand-name" data-i18n="app_name">BMC Building Safety</span>
@@ -393,9 +392,6 @@ try{
       </a>
       <div class="nav-links">
         <button class="nav-back" onclick="goBack()" data-i18n="back">Back</button>
-        <button onclick="showScreen('help')" data-i18n="help">Help</button>
-        <button onclick="showScreen('about')" data-i18n="about">About</button>
-      <button type="button" class="night-toggle" onclick="toggleNightMode()" aria-label="Night mode" aria-pressed="false" title="Night mode"><span class="night-icon" aria-hidden="true">☾</span><span class="night-label">Night mode</span></button>
       </div>
     </div>
   </nav>
@@ -438,9 +434,6 @@ try{
         <span class="brand-name" data-i18n="app_name">BMC Building Safety</span>
       </a>
       <div class="nav-links">
-        <button onclick="showScreen('help')" data-i18n="help">Help</button>
-        <button onclick="showScreen('about')" data-i18n="about">About</button>
-      <button type="button" class="night-toggle" onclick="toggleNightMode()" aria-label="Night mode" aria-pressed="false" title="Night mode"><span class="night-icon" aria-hidden="true">☾</span><span class="night-label">Night mode</span></button>
       </div>
     </div>
   </nav>
@@ -463,9 +456,6 @@ try{
         <span class="brand-name" data-i18n="app_name">BMC Building Safety</span>
       </a>
       <div class="nav-links">
-        <button onclick="showScreen('help')" data-i18n="help">Help</button>
-        <button onclick="showScreen('about')" data-i18n="about">About</button>
-      <button type="button" class="night-toggle" onclick="toggleNightMode()" aria-label="Night mode" aria-pressed="false" title="Night mode"><span class="night-icon" aria-hidden="true">☾</span><span class="night-label">Night mode</span></button>
       </div>
     </div>
   </nav>
@@ -495,7 +485,6 @@ try{
               <span id="statusDesc">—</span>
             </div>
             <div class="status-actions">
-              <button type="button" class="status-action" onclick="saveBuildingStatus()" data-i18n="save_status">Save status</button>
               <button type="button" class="status-action status-action-primary" onclick="shareBuildingStatus()" data-i18n="share_status">Share status</button>
             </div>
             <p class="action-feedback" id="actionFeedback" aria-live="polite"></p>
@@ -505,11 +494,7 @@ try{
               <div class="media-panel-title" data-i18n="building_photo">Building photograph</div>
               <div class="photo-box" id="photoBox" aria-live="polite"></div>
             </section>
-            <section class="media-panel">
-              <div class="media-panel-title" data-i18n="location_map">Location on map</div>
-              <div id="buildingMap" role="img" aria-label="Map showing this building's location"></div>
-              <p class="location-accuracy" id="locationAccuracy" aria-live="polite"></p>
-            </section>
+            
           </div>
         </div>
 
@@ -574,7 +559,7 @@ try{
         <img class="brand-mark" src="assets/bmc-logo.png" alt="Brihanmumbai Municipal Corporation logo" width="44" height="44">
         <span class="brand-name" data-i18n="app_name">BMC Building Safety</span>
       </a>
-      <div class="nav-links"><button onclick="showScreen('about')" data-i18n="about">About</button><button type="button" class="night-toggle" onclick="toggleNightMode()" aria-label="Night mode" aria-pressed="false" title="Night mode"><span class="night-icon" aria-hidden="true">☾</span><span class="night-label">Night mode</span></button>
+      <div class="nav-links">
       </div>
     </div>
   </nav>
@@ -607,7 +592,7 @@ try{
         <img class="brand-mark" src="assets/bmc-logo.png" alt="Brihanmumbai Municipal Corporation logo" width="44" height="44">
         <span class="brand-name" data-i18n="app_name">BMC Building Safety</span>
       </a>
-      <div class="nav-links"><button onclick="showScreen('help')" data-i18n="help">Help</button><button type="button" class="night-toggle" onclick="toggleNightMode()" aria-label="Night mode" aria-pressed="false" title="Night mode"><span class="night-icon" aria-hidden="true">☾</span><span class="night-label">Night mode</span></button>
+      <div class="nav-links">
       </div>
     </div>
   </nav>
@@ -1531,5 +1516,7 @@ updateNightModeButtons();
 html.night-mode #photoBox .sample-photo-caption{color:var(--text-muted);background:#142130;border-color:var(--border)}
 @media(max-width:520px){#photoBox .sample-building-image{height:155px;min-height:145px}#photoBox .sample-photo-caption{font-size:9px;padding:6px}}
 </style>
+<link rel="stylesheet" href="app-v2.css">
+<script src="app-v2.js"></script>
 </body>
 </html>
