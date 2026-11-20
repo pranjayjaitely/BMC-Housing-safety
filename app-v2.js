@@ -123,7 +123,24 @@ function showScreen(name,track){
  if(name==="awareness"){initMap();renderWardList();}if(name==="home")$("#searchInput")?.focus({preventScroll:true});
 }
 function goBack(){const s=window.__screenHistory||(window.__screenHistory=["language"]);if(s.length>1)s.pop();showScreen(s[s.length-1]||"language",false);}
-function selectLanguage(lang){currentLang=["en","hi","mr"].includes(lang)?lang:"en";document.documentElement.lang=lang==="hi"?"hi-IN":lang==="mr"?"mr-IN":"en-IN";try{localStorage.setItem("bmc-language",currentLang);}catch(e){}showScreen("awareness");}
+function rebuildLocalizedScreens(){
+ const active=$(".screen.active"),activeName=active?active.id.replace("screen-",""):"language";
+ if(map){map.remove();map=null;layer=null;}
+ $("#screen-awareness")?.remove();
+ addAwareness();
+ categoryCards();filters();renderWardList();
+ addDetails();
+ if(typeof applyTranslations==="function")applyTranslations();
+ updateToolbar();
+ if(activeName==="result"&&selected){renderBuilding(selected);return;}
+ showScreen(activeName==="language"?"awareness":activeName,false);
+}
+function selectLanguage(lang){
+ currentLang=["en","hi","mr"].includes(lang)?lang:"en";
+ document.documentElement.lang=lang==="hi"?"hi-IN":lang==="mr"?"mr-IN":"en-IN";
+ try{localStorage.setItem("bmc-language-v2",currentLang);}catch(e){}
+ rebuildLocalizedScreens();
+}
 function speakScreen(){
  if(!window.speechSynthesis){announce("Speech output is not supported by this browser.");return;}window.speechSynthesis.cancel();const a=$(".screen.active");if(!a)return;const c=a.cloneNode(true);c.querySelectorAll("button,input,script,style,.access-toolbar").forEach(x=>x.remove());const text=c.innerText.replace(/\s+/g," ").trim();if(!text)return;const u=new SpeechSynthesisUtterance(text);u.lang=currentLang==="hi"?"hi-IN":currentLang==="mr"?"mr-IN":"en-IN";u.rate=.92;window.speechSynthesis.speak(u);
 }
@@ -134,10 +151,16 @@ function toolbar(){
  $("#speakPlay").onclick=speakScreen;$("#speakStop").onclick=()=>{window.speechSynthesis?.cancel();announce("Reading stopped.");};
  const live=document.createElement("div");live.id="globalFeedback";live.className="sr-only";live.setAttribute("aria-live","polite");document.body.appendChild(live);updateToolbar();
 }
-function updateToolbar(){const b=$("#globalNightToggle");if(b){const on=document.documentElement.classList.contains("night-mode");b.textContent=on?t("day"):t("night");b.setAttribute("aria-pressed",String(on));}}
+function updateToolbar(){
+ const b=$("#globalNightToggle");
+ if(b){const on=document.documentElement.classList.contains("night-mode");b.textContent=on?t("day"):t("night");b.setAttribute("aria-pressed",String(on));}
+ const play=$("#speakPlay"),stop=$("#speakStop");
+ if(play){play.setAttribute("aria-label",t("speechPlay"));play.setAttribute("title",t("speechPlay"));}
+ if(stop){stop.setAttribute("aria-label",t("speechStop"));stop.setAttribute("title",t("speechStop"));}
+}
 function languageBack(){const b=$("#languageBack");if(b)b.remove();}
 async function init(){
- try{const lang=localStorage.getItem("bmc-language");if(["en","hi","mr"].includes(lang))currentLang=lang;if(localStorage.getItem("bmc-night-mode")==="on")document.documentElement.classList.add("night-mode");}catch(e){}
+ currentLang="en";document.documentElement.lang="en-IN";try{const lang=localStorage.getItem("bmc-language-v2");if(["en","hi","mr"].includes(lang))currentLang=lang;document.documentElement.lang=currentLang==="hi"?"hi-IN":currentLang==="mr"?"mr-IN":"en-IN";if(localStorage.getItem("bmc-night-mode")==="on")document.documentElement.classList.add("night-mode");}catch(e){currentLang="en";document.documentElement.lang="en-IN";}
  addCss();addAwareness();toolbar();
  // Reload from the published source file, then discard all legacy demo rows.
  await loadData();const valid=buildings.filter(b=>!b.demo&&b.cls&&b.cls!=="none"&&b.name&&b.address);buildings.splice(0,buildings.length,...valid);
